@@ -1,9 +1,6 @@
 package main
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
 func TestFollowInstructions1(t *testing.T) {
 	resetVariableStates()
@@ -38,9 +35,8 @@ func resetVariableStates() {
 }
 
 func followExampleInstructions(testInput string, expectedDistance int, t *testing.T) {
-	instructions := strings.Split(testInput, ", ")
-	followInstructions(instructions)
-	calculateDistance()
+	instructionsInput = testInput
+	main()
 	if distance != expectedDistance {
 		t.Error("Expected distance", expectedDistance, "is not equal to", distance)
 	}
