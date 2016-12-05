@@ -16,8 +16,9 @@ var (
 	cardinalDirection = 0
 	distance          = 0
 	// Part 2
-	previouslyVisited   = make(map[string]bool)
-	headquartersLocated = false
+	previouslyVisited    = make(map[string]bool)
+	headquartersLocated  = false
+	headquartersDistance = 0
 )
 
 func main() {
@@ -25,6 +26,7 @@ func main() {
 	followInstructions(instructions)
 	calculateDistance()
 	fmt.Println("Distance: ", distance)
+	fmt.Println("Headquarters Distance:", headquartersDistance)
 }
 
 func followInstructions(instructions []string) {
@@ -70,22 +72,22 @@ func move(blocks int) {
 		if headquartersLocated {
 			continue
 		}
-		currentLocation := strconv.Itoa(x) + "x" + strconv.Itoa(y)
-		if previouslyVisited[currentLocation] {
-			locateHeadquarters()
-		}
-		previouslyVisited[currentLocation] = true
+		addCurrentLocationToTrail()
 	}
 }
 
 func addCurrentLocationToTrail() {
-
+	currentLocation := strconv.Itoa(x) + "x" + strconv.Itoa(y)
+	if previouslyVisited[currentLocation] {
+		locateHeadquarters()
+	}
+	previouslyVisited[currentLocation] = true
 }
 
 func locateHeadquarters() {
 	calculateDistance()
 	headquartersLocated = true
-	fmt.Println("Headquarters Distance:", distance)
+	headquartersDistance = distance
 }
 
 func calculateDistance() {
