@@ -12,64 +12,123 @@ LDLRLDDDLUDRDRRUDUURLRULLUDDRLURLUULDLLRLLUDLRLRUDLULRLRRLRURLDDDURUDUUURDRLDDLU
 LLRRDURRDLDULRDUDLRDRDRURULDURUDRRURDDDRLDLDRDRDRDRULDUURLULDDUURUULUDULLDUDLLLLDLLLDRLUUULLULDDRRUDDULLLULRDRULDDULDUDRDDLUUURULDLLUDUUUUURUDLLDRDULLRULLDURDRLLDLDRDDURUULUDURRRUULLDUUDDURDURLDLRRLLDURDDLRRRUDLRRRDLDRLUDLUDRDRLDDLLLRLLRURDLRDUUUURRLULDDLDLLLUDRDRLRRDURDDLURDLDDDULLLRRLDDDRULDDDLRRDULUUUDRRULDDLLLURDRRLLLUULDRRRUURRDDLULDRLULDDDLDULDRRRULRULLURLURULLLLRUDRRRDRDRDLDULURLRRRRLRUDDRRRUURUURLLRURURUURRURRDLDLLUDRRRDUDDRDURLLRLRRULD
 DULRRDRLRLUDLLURURLLRLRDLLDLLDRDUURLRUUUDLLDUUDDUULDUULLRUDRURLUDRDLRUDDDLULUDLLDRULULLLDRRULDLLUURLRRRLDRDLDRURRRRDLRUUDULLRLLLDLRUDLDUUDRLDLRDRLRDLDDDUDLRUDLDDLLLDRLLRRUUDRDDUUURURRRUUDLRRDDRUDLDDULULDLRRLRDDUDRUURRUULURLURUDRRURRRULDDDDURDLUUULUULULRDLRRRRRURURRLRUULDUUURRDRRDLDUUUULLULLLLUDLUUDUURRDLDLRRRLUUURULDULDLDRLLURDRUULLLLLULLLDRURURRUDRRRRUDUDUDRUDUDRDRULUUDRURDDUUDLDLDUURUDURLRLRRDRDRDLLDUDDULLRDLDDRLLDLRDURDDULLLDLLLULDLUUUDLDRDLURUURDDLRDLLLLLRLURDLLLULLRRLU
 DUULULUUDUDLLRLRURULLDLRRLURDLLDUDUDDRURRLUDULULDRRDRLUULUDDLUURURDLDDDRDRUDURLDDLUDUURULRRUUDRLURRLRLDURRRULRLDDDRUDDDDDUDDULLLRRLLDULDRULUDLRRDLLUDRDLDULRLLLUULLRULRLLLLUDDRRDRLULDLDLURDDRUDDLDLDLDRULDLLDDUUDULUULULLURDURRLLUDRULLRDUDRDRURDRDRDURUUDULDDRURUDLLUUDUUDURDLRDRURUDRUURLUUURLRLUDRUDRUURLLUDRLURDDURRUDRDRLRRLDDDRDDLUUUDDLULDUURUDUDLLDRURDURRDULRLURRDLDDRLUDRLDLRLDDUURRULDDLDUDDLRDULLDDDLDUUUUDLRUDUDLDRDLRDDLDLRLLUDDRRLUDLDUUULLDDRLRRDLRRRRUDDLRLLULRLRDURDUDDRRULLDDLDLRRDLLULDURURDDURLRLULULURRUDUDRDLURULDUDLUULDUUURLLRUDLLRDLRUDRLULDUDRRDUUDUUULUUUDDRUD`
-	keypad   = [][]int{{1, 4, 7}, {2, 5, 8}, {3, 6, 9}}
-	doorCode = ""
-	x        = 1
-	y        = 1
+	squareKeypad  = [][]int{{1, 4, 7}, {2, 5, 8}, {3, 6, 9}}
+	diamondKeypad = [][]rune{
+		// Flip over the up-left to down-right diagonal axis
+		// {'X', 'X', '1', 'X', 'X'},
+		// {'X', '2', '3', '4', 'X'},
+		// {'5', '6', '7', '8', '9'},
+		// {'X', 'A', 'B', 'C', 'X'},
+		// {'X', 'X', 'D', 'X', 'X'},
+
+		{'X', 'X', '5', 'X', 'X'},
+		{'X', '2', '6', 'A', 'X'},
+		{'1', '3', '7', 'B', 'D'},
+		{'X', '4', '8', 'C', 'X'},
+		{'X', 'X', '9', 'X', 'X'},
+	}
+	squareDoorCode  = ""
+	diamondDoorCode = ""
+	x               = 0
+	y               = 0
 )
 
 func main() {
 	instructions := strings.Split(input, "\n")
-	loopThroughInstructions(instructions)
-	fmt.Println("Door Code:", doorCode)
+	setSquareState()
+	loopThroughSquareInstructions(instructions)
+	fmt.Println("Square Door Code:", squareDoorCode)
+	setDiamondState()
+	loopThroughDiamondInstructions(instructions)
+	fmt.Println("Diamond Door Code:", diamondDoorCode)
 }
 
-func loopThroughInstructions(instructions []string) {
+func setSquareState() {
+	squareDoorCode = ""
+	x = 1
+	y = 1
+}
+
+func setDiamondState() {
+	diamondDoorCode = ""
+	x = 0
+	y = 2
+}
+
+func loopThroughSquareInstructions(instructions []string) {
 	for _, instruction := range instructions {
-		fmt.Println("Instruction: ", instruction)
-		locateNextButton(instruction)
-		pushButton()
+		//fmt.Println("Instruction: ", instruction)
+		locateNextSquareButton(instruction)
+		pushSquareButton()
 	}
 }
 
-func locateNextButton(instruction string) {
+func locateNextSquareButton(instruction string) {
 	for _, i := range instruction {
-		fmt.Print(string(i), " ")
+		//fmt.Print(string(i), " ")
 		if i == 'U' {
-			moveY(-1)
+			y = moveSquare(-1, y)
 		} else if i == 'R' {
-			moveX(1)
+			x = moveSquare(1, x)
 		} else if i == 'D' {
-			moveY(1)
+			y = moveSquare(1, y)
 		} else if i == 'L' {
-			moveX(-1)
+			x = moveSquare(-1, x)
 		}
+		//fmt.Print(squareKeypad[x][y], ": (", x, ", ", y, ") - ")
 	}
 }
 
-func moveY(distance int) {
+func moveSquare(distance int, position int) int {
+	if position+distance > 2 || position+distance < 0 {
+		return position
+	}
+	return position + distance
+}
+
+func pushSquareButton() {
+	//fmt.Println("Push square button:", squareKeypad[x][y])
+	squareDoorCode += strconv.Itoa(squareKeypad[x][y])
+}
+
+func loopThroughDiamondInstructions(instructions []string) {
+	for _, instruction := range instructions {
+		//fmt.Println("Instruction:", instruction)
+		locateNextDiamondButton(instruction)
+		pushDiamondButton()
+	}
+}
+
+func locateNextDiamondButton(instruction string) {
+	for _, i := range instruction {
+		if i == 'U' {
+			moveDiamondY(-1)
+		} else if i == 'R' {
+			moveDiamondX(1)
+		} else if i == 'D' {
+			moveDiamondY(1)
+		} else if i == 'L' {
+			moveDiamondX(-1)
+		}
+		//fmt.Println(string(i), "(", x, ",", y, "):", string(diamondKeypad[x][y]))
+	}
+}
+
+func moveDiamondY(distance int) {
+	if y+distance > 4 || y+distance < 0 || diamondKeypad[x][y+distance] == 'X' {
+		return
+	}
 	y += distance
-	if y > 2 {
-		y = 2
-	}
-	if y < 0 {
-		y = 0
-	}
-	//fmt.Print(keypad[x][y], ": (", x, ", ", y, ") - ")
 }
 
-func moveX(distance int) {
+func moveDiamondX(distance int) {
+	if x+distance > 4 || x+distance < 0 || diamondKeypad[x+distance][y] == 'X' {
+		return
+	}
 	x += distance
-	if x > 2 {
-		x = 2
-	}
-	if x < 0 {
-		x = 0
-	}
-	//fmt.Print(keypad[x][y], ": (", x, ", ", y, ") - ")
 }
 
-func pushButton() {
-	//fmt.Println(keypad[x][y])
-	doorCode += strconv.Itoa(keypad[x][y])
+func pushDiamondButton() {
+	//fmt.Println(string(diamondKeypad[x][y]))
+	diamondDoorCode += string(diamondKeypad[x][y])
 }

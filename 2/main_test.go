@@ -11,13 +11,24 @@ import "testing"
 // 8 5 6 9 8
 // 5 2 2 2 5
 
+// XX1XX
+// X234X
+// 56789
+// XABCX
+// XXDXX
+
+// 5 D B 3
+
 func TestDoorCode(t *testing.T) {
 	input = `ULL
-	RRDDD
-	LURDL
-	UUUUD`
+RRDDD
+LURDL
+UUUUD`
 	main()
-	if doorCode != "1985" {
-		t.Error("Expected door code 1985 is not the result:", doorCode)
+	if squareDoorCode != "1985" {
+		t.Error("Expected door code 1985 is not the result:", squareDoorCode)
+	}
+	if diamondDoorCode != "5DB3" {
+		t.Error("Expected door code 5DB3 is not the result:", diamondDoorCode)
 	}
 }
