@@ -31,7 +31,7 @@ func followInstructions(instructions []string) {
 		} else {
 			turnLeft()
 		}
-		blocks, _ := strconv.Atoi(string(i[1]))
+		blocks, _ := strconv.Atoi(i[1:])
 		move(blocks)
 	}
 }
