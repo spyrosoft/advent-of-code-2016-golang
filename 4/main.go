@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -39,11 +41,41 @@ func addSectorIDIfRealRoom(room string) {
 }
 
 func checkForRealRoom(letters string, checksum string) bool {
-	lettersCounter := make(map[rune]int)
-	for _, letter := range letters {
-		lettersCounter[letter]++
-	}
+	lettersFrequency := populateLettersFrequency(letters)
+	lettersList := populateLettersList(lettersFrequency)
+	lettersList = sortLettersList(lettersList)
 	return true
+}
+
+func populateLettersFrequency(letters string) map[rune]int {
+	sort.Sort([]rune(letters))
+	lettersFrequency := make(map[rune]int)
+	for _, letter := range letters {
+		lettersFrequency[letter]++
+	}
+	return lettersFrequency
+}
+
+type letterCount struct {
+	Letter rune
+	Count  int
+}
+
+func populateLettersList(lettersFrequency map[rune]int) *list.List {
+	lettersList := list.New()
+	for letter, count := range lettersFrequency {
+		fmt.Println(string(letter))
+		lettersList.PushFront(letterCount{letter, count})
+	}
+	return lettersList
+}
+
+func sortLettersList(lettersList *list.List) *list.List {
+	sortedLettersList := list.New()
+	for letterCount := lettersList.Front(); letterCount != nil; letterCount = letterCount.Next() {
+
+	}
+	return sortedLettersList
 }
 
 func panicOnError(err error) {
