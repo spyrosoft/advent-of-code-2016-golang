@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -27,20 +29,21 @@ func addSectorIDIfRealRoom(room string) {
 	room = strings.Replace(room, "-", "", -1)
 	lettersSectorIDChecksumRegex := regexp.MustCompile("^([^\\d]+)(\\d+)\\[(.+)\\]$")
 	regexMatches := lettersSectorIDChecksumRegex.FindAllStringSubmatch(room, -1)
-	//fmt.Println(matches)
-	letters := regexMatches[1]
-	sectorID := regexMatches[2]
-	checksum := regexMatches[3]
+	fmt.Println(regexMatches)
+	letters := regexMatches[0][1]
+	sectorID, _ := strconv.Atoi(regexMatches[0][2])
+	checksum := regexMatches[0][3]
 	if checkForRealRoom(letters, checksum) {
 		sectorIDsSum += sectorID
 	}
 }
 
-func checkForRealRoom(letters string, checksum string) {
+func checkForRealRoom(letters string, checksum string) bool {
 	lettersCounter := make(map[rune]int)
 	for _, letter := range letters {
 		lettersCounter[letter]++
 	}
+	return true
 }
 
 func panicOnError(err error) {
