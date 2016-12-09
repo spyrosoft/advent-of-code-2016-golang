@@ -2,11 +2,16 @@ package main
 
 import "testing"
 
-func TestGeneratePassword(t *testing.T) {
+func TestGeneratePasswords(t *testing.T) {
 	input = "abc"
 	main()
-	correctPassword := "18f47a30"
-	if password != correctPassword {
-		t.Error("Password: " + password + " is not correct. Should be " + correctPassword)
+	correctFirstPassword := "18f47a30"
+	if firstPassword != correctFirstPassword {
+		t.Error("First Password: " + firstPassword + " is not correct. Should be " + correctFirstPassword)
+	}
+	correctSecondPassword := "05ace8e3"
+	//secondPassword = generateSecondPassword()
+	if secondPassword != correctSecondPassword {
+		t.Error("Second Password: " + secondPassword + " is not correct. Should be " + correctSecondPassword)
 	}
 }
