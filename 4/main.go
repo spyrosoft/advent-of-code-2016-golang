@@ -22,12 +22,13 @@ func main() {
 	for scanner.Scan() {
 		addSectorIDIfRealRoom(scanner.Text())
 	}
+	fmt.Println("Sector IDs Sum:", sectorIDsSum)
 }
 
 func addSectorIDIfRealRoom(room string) {
 	lettersSectorIDChecksumRegex := regexp.MustCompile("^([^\\d]+)(\\d+)\\[(.+)\\]$")
 	regexMatches := lettersSectorIDChecksumRegex.FindAllStringSubmatch(room, -1)
-	fmt.Println(regexMatches)
+	//fmt.Println(regexMatches)
 	letters := regexMatches[0][1]
 	sectorID, _ := strconv.Atoi(regexMatches[0][2])
 	checksum := regexMatches[0][3]
@@ -56,10 +57,15 @@ func checkForRealRoom(letters string, checksum string) bool {
 	lettersFrequencyMap := populateLettersFrequencyMap(letters)
 	letterCounts := populateLetterCounts(lettersFrequencyMap)
 	sort.Sort(letterCounts)
+	correctChecksum := ""
 	for _, letterCount := range letterCounts {
-		fmt.Println(string(letterCount.Letter), letterCount.Count)
+		if len(correctChecksum) == 5 || letterCount.Count == 0 {
+			break
+		}
+		//fmt.Println(string(letterCount.Letter), letterCount.Count)
+		correctChecksum += string(letterCount.Letter)
 	}
-	return true
+	return correctChecksum == checksum
 }
 
 func populateLettersFrequencyMap(letters string) map[rune]int {
@@ -74,9 +80,9 @@ func populateLettersFrequencyMap(letters string) map[rune]int {
 }
 
 func populateLetterCounts(lettersFrequencyMap map[rune]int) letterCounts {
-	letterCounts := make(letterCounts, len(lettersFrequencyMap))
+	letterCounts := make(letterCounts, len(lettersFrequencyMap)/2)
 	for letter, count := range lettersFrequencyMap {
-		fmt.Println("letter:", string(letter))
+		//fmt.Println("letter:", string(letter))
 		letterCount := letterCount{letter, count}
 		letterCounts = append(letterCounts, letterCount)
 	}
