@@ -2,13 +2,11 @@ package main
 
 import (
 	"bufio"
-	"container/list"
 	"fmt"
 	"os"
 	"regexp"
 	"sort"
 	"strconv"
-	"strings"
 )
 
 var (
@@ -27,8 +25,6 @@ func main() {
 }
 
 func addSectorIDIfRealRoom(room string) {
-	//Throw away dashes; they don't seem to matter
-	room = strings.Replace(room, "-", "", -1)
 	lettersSectorIDChecksumRegex := regexp.MustCompile("^([^\\d]+)(\\d+)\\[(.+)\\]$")
 	regexMatches := lettersSectorIDChecksumRegex.FindAllStringSubmatch(room, -1)
 	fmt.Println(regexMatches)
@@ -40,42 +36,51 @@ func addSectorIDIfRealRoom(room string) {
 	}
 }
 
-func checkForRealRoom(letters string, checksum string) bool {
-	lettersFrequency := populateLettersFrequency(letters)
-	lettersList := populateLettersList(lettersFrequency)
-	lettersList = sortLettersList(lettersList)
-	return true
-}
-
-func populateLettersFrequency(letters string) map[rune]int {
-	sort.Sort([]rune(letters))
-	lettersFrequency := make(map[rune]int)
-	for _, letter := range letters {
-		lettersFrequency[letter]++
-	}
-	return lettersFrequency
-}
-
 type letterCount struct {
 	Letter rune
 	Count  int
 }
 
-func populateLettersList(lettersFrequency map[rune]int) *list.List {
-	lettersList := list.New()
-	for letter, count := range lettersFrequency {
-		fmt.Println(string(letter))
-		lettersList.PushFront(letterCount{letter, count})
+type letterCounts []letterCount
+
+func (l letterCounts) Len() int      { return len(l) }
+func (l letterCounts) Swap(i, j int) { l[i], l[j] = l[j], l[i] }
+func (l letterCounts) Less(i, j int) bool {
+	if l[i].Count == l[j].Count {
+		return int(l[i].Letter) < int(l[j].Letter)
 	}
-	return lettersList
+	return int(l[i].Count) > int(l[j].Count)
 }
 
-func sortLettersList(lettersList *list.List) *list.List {
-	sortedLettersList := list.New()
-	for letterCount := lettersList.Front(); letterCount != nil; letterCount = letterCount.Next() {
-
+func checkForRealRoom(letters string, checksum string) bool {
+	lettersFrequencyMap := populateLettersFrequencyMap(letters)
+	letterCounts := populateLetterCounts(lettersFrequencyMap)
+	sort.Sort(letterCounts)
+	for _, letterCount := range letterCounts {
+		fmt.Println(string(letterCount.Letter), letterCount.Count)
 	}
-	return sortedLettersList
+	return true
+}
+
+func populateLettersFrequencyMap(letters string) map[rune]int {
+	lettersFrequencyMap := make(map[rune]int)
+	for _, letter := range letters {
+		if letter == '-' {
+			continue
+		}
+		lettersFrequencyMap[letter]++
+	}
+	return lettersFrequencyMap
+}
+
+func populateLetterCounts(lettersFrequencyMap map[rune]int) letterCounts {
+	letterCounts := make(letterCounts, len(lettersFrequencyMap))
+	for letter, count := range lettersFrequencyMap {
+		fmt.Println("letter:", string(letter))
+		letterCount := letterCount{letter, count}
+		letterCounts = append(letterCounts, letterCount)
+	}
+	return letterCounts
 }
 
 func panicOnError(err error) {
