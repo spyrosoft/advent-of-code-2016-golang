@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"regexp"
 	"sort"
@@ -20,18 +21,23 @@ func main() {
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		addSectorIDIfRealRoom(scanner.Text())
+		processRoom(scanner.Text())
 	}
 	fmt.Println("Sector IDs Sum:", sectorIDsSum)
 }
 
-func addSectorIDIfRealRoom(room string) {
+func processRoom(room string) {
 	lettersSectorIDChecksumRegex := regexp.MustCompile("^([^\\d]+)(\\d+)\\[(.+)\\]$")
 	regexMatches := lettersSectorIDChecksumRegex.FindAllStringSubmatch(room, -1)
 	//fmt.Println(regexMatches)
 	letters := regexMatches[0][1]
 	sectorID, _ := strconv.Atoi(regexMatches[0][2])
 	checksum := regexMatches[0][3]
+	addSectorIDIfRealRoom(letters, sectorID, checksum)
+	decipherRoom(letters, sectorID)
+}
+
+func addSectorIDIfRealRoom(letters string, sectorID int, checksum string) {
 	if checkForRealRoom(letters, checksum) {
 		sectorIDsSum += sectorID
 	}
@@ -87,6 +93,29 @@ func populateLetterCounts(lettersFrequencyMap map[rune]int) letterCounts {
 		letterCounts = append(letterCounts, letterCount)
 	}
 	return letterCounts
+}
+
+// Part 2
+func decipherRoom(room string, sectorID int) string {
+	// a: 97, z: 122
+	maxLetterValue := 122
+	rotation := int(math.Mod(float64(sectorID), float64(26)))
+	//fmt.Println("Rotation: ", rotation)
+	decipheredRoom := ""
+	for i := 0; i < len(room); i++ {
+		if room[i] == '-' {
+			decipheredRoom += " "
+			continue
+		}
+		letter := int(room[i])
+		letter += rotation
+		if letter > maxLetterValue {
+			letter -= 26 // 26 letters in the alphabet
+		}
+		decipheredRoom += string(rune(letter))
+	}
+	fmt.Println("Deciphered Room:", decipheredRoom, " - Sector ID:", sectorID)
+	return decipheredRoom
 }
 
 func panicOnError(err error) {

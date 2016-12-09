@@ -27,3 +27,12 @@ func TestAddSectorIDsIfReal(t *testing.T) {
 	inputFile = "test-input.txt"
 	main()
 }
+
+func TestDecipherRoom(t *testing.T) {
+	room := "qzmt-zixmtkozy-ivhz"
+	sectorID := 343
+	decipheredRoom := "very encrypted name"
+	if decipherRoom(room, sectorID) != decipheredRoom {
+		t.Error("The room: " + room + " with sector ID: " + string(sectorID) + " did not decipher to: " + decipheredRoom)
+	}
+}
