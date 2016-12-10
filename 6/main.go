@@ -7,9 +7,10 @@ import (
 )
 
 var (
-	input             = "input.txt"
-	ungarbledMessage  = ""
-	letterFrequencies []map[rune]int
+	input                      = "input.txt"
+	ungarbledMessage           = ""
+	ungarbledInfrequentMessage = ""
+	letterFrequencies          []map[rune]int
 )
 
 func main() {
@@ -22,6 +23,7 @@ func main() {
 	}
 	ungarbleMessage()
 	fmt.Println("Ungarbled Message:", ungarbledMessage)
+	fmt.Println("Ungarbled Infrequent Message:", ungarbledInfrequentMessage)
 }
 
 func processGarbledMessages(message string) {
@@ -38,16 +40,24 @@ func processGarbledMessages(message string) {
 
 func ungarbleMessage() {
 	ungarbledMessage = ""
+	ungarbledInfrequentMessage = ""
 	for _, letterFrequency := range letterFrequencies {
 		maxLetterFrequency := 0
 		mostCommonLetter := '!'
+		minLetterFrequency := 100000
+		leastCommonLetter := '!'
 		for letter, frequency := range letterFrequency {
 			if frequency > maxLetterFrequency {
 				mostCommonLetter = letter
 				maxLetterFrequency = frequency
 			}
+			if frequency < minLetterFrequency {
+				leastCommonLetter = letter
+				minLetterFrequency = frequency
+			}
 		}
 		ungarbledMessage += string(mostCommonLetter)
+		ungarbledInfrequentMessage += string(leastCommonLetter)
 	}
 }
 
