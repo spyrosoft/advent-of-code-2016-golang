@@ -4,11 +4,14 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
+	"strings"
 )
 
 var (
-	input     = "input.txt"
-	addresses = 0
+	input        = "input.txt"
+	tlsAddresses = 0
+	sslAddresses = 0
 )
 
 func main() {
@@ -19,12 +22,16 @@ func main() {
 	for scanner.Scan() {
 		processIPAddress(scanner.Text())
 	}
-	fmt.Println(addresses)
+	fmt.Println("Addresses Supporting TLS:", tlsAddresses)
+	fmt.Println("Addresses Supporting SSL:", sslAddresses)
 }
 
 func processIPAddress(address string) {
 	if addressSupportsTLS(address) {
-		addresses++
+		tlsAddresses++
+	}
+	if addressSupportsSSL(address) {
+		sslAddresses++
 	}
 }
 
@@ -51,6 +58,54 @@ func addressSupportsTLS(address string) bool {
 		}
 	}
 	return supportsTLS
+}
+
+func addressSupportsSSL(address string) bool {
+	brackets, noBrackets := parseBracketsAndNoBrackets(address)
+	for _, chunk := range brackets {
+		if abaExists(chunk, noBrackets) {
+			return true
+		}
+	}
+	return false
+}
+
+func abaExists(chunk string, noBrackets []string) bool {
+	for i := 0; i < len(chunk)-2; i++ {
+		if chunk[i] == chunk[i+2] {
+			bab := chunk[i+1:i+3] + string(chunk[i+1])
+			if babExists(bab, noBrackets) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func babExists(bab string, noBrackets []string) bool {
+	for _, chunk := range noBrackets {
+		if strings.Contains(chunk, bab) {
+			return true
+		}
+	}
+	return false
+}
+
+func parseBracketsAndNoBrackets(address string) (brackets []string, noBrackets []string) {
+	brackets = make([]string, 0)
+	noBrackets = make([]string, 0)
+	bracketsRegex := regexp.MustCompile("[\\[\\]]")
+	bracketsSplit := bracketsRegex.Split(address, -1)
+	inBrackets := false
+	for _, bracketSplit := range bracketsSplit {
+		if inBrackets {
+			brackets = append(brackets, bracketSplit)
+		} else {
+			noBrackets = append(noBrackets, bracketSplit)
+		}
+		inBrackets = !inBrackets
+	}
+	return
 }
 
 func panicOnError(err error) {
